@@ -3,33 +3,37 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boss Clicker 24 ชม.</title>
+<title>Boss Clicker - Real Time TH</title>
 <style>
 body{background:#0a0a0a; color:white; font-family:sans-serif; text-align:center; padding:10px}
 #boss{font-size:95px; cursor:pointer} #boss:active{transform:scale(0.85)}
 .hp-bar{width:92%; height:26px; background:#222; border-radius:20px; margin:auto; overflow:hidden; border:2px solid #444}
 .hp-fill{height:100%; background:linear-gradient(90deg, #ff6b6b, #feca57); width:100%}
-.card{background:#1a1a2e; padding:12px; border-radius:14px; margin:10px 0}
+.card{background:#1a1a2e; padding:12px; border-radius:14px; margin:10px 0; border:1px solid #2a2a4a}
 .shop{display:grid; grid-template-columns:1fr 1fr; gap:8px; text-align:left}
 .item{background:#0f0f1f; padding:10px; border-radius:10px; border:1px solid #333}
 .item.locked{opacity:0.4; filter:grayscale(1)}
 .price{color:#facc15; font-weight:bold}.req{font-size:11px; color:#f87171}
 button{padding:7px; border-radius:8px; border:none; font-weight:bold; width:100%; margin-top:4px}
 .buy{background:#22c55e; color:black}.cant{background:#334155}
-.lv{color:#38bdf8; font-weight:bold}.coin{color:#facc15; font-weight:bold}
+.clock{font-size:18px; color:#38bdf8; font-weight:bold; background:#0f172a; padding:8px; border-radius:10px; margin:8px 0}
+.coin{color:#facc15; font-weight:bold}
 </style>
 </head>
 <body>
-<h1>👊 BOSS CLICKER 24 ชม.</h1>
-<div>⭐ เลเวล <span id="level" class="lv">1</span> | EXP <span id="exp">0</span> | 🔁 รอบ <span id="loop">1</span></div>
-<div>💰 <span id="coins" class="coin">0</span> | 👊 ดาเมจ <span id="dmg">1</span></div>
+<h1>👊 BOSS Clicker 24H 🇹🇭</h1>
+<div id="thaiClock" class="clock">🕐 กำลังโหลดเวลาไทย...</div>
+<div>⭐ เลเวล <span id="level">1</span> | 💰 <span id="coins" class="coin">0</span> | 👊 <span id="dmg">1</span></div>
+<div style="font-size:11px; color:#94a3b8">บอสมาตามเวลาจริงประเทศไทย</div>
 
 <div class="card">
-<div id="bossName" style="font-size:20px; font-weight:bold"></div>
+<div id="bossName" style="font-size:22px; font-weight:bold"></div>
 <div id="bossTime" style="font-size:13px; color:#a78bfa"></div>
+<div id="nextTime" style="font-size:11px; color:#facc15"></div>
 <div class="hp-bar"><div id="hpFill" class="hp-fill"></div></div>
 <div id="hpText"></div>
 <div id="boss" onclick="hit()">👹</div>
+<div style="font-size:11px; color:#64748b">บอสตัวนี้ฟาร์มได้เรื่อยๆจนกว่าจะถึงเวลาบอสตัวต่อไป</div>
 </div>
 
 <h2>🛒 ร้านไอเทม 50 ชิ้น</h2>
@@ -37,48 +41,48 @@ button{padding:7px; border-radius:8px; border:none; font-weight:bold; width:100%
 
 <script>
 let bosses=[
-{name:"อาบังลังกระดาษ", hp:400, coin:560, exp:10, emoji:"📦", time:"07:00"},
-{name:"พี่โด้กินโกโก้", hp:6000, coin:1500, exp:25, emoji:"🐐", time:"10:00"},
-{name:"เมสซี่ขี้ทุกวัน", hp:8000, coin:1800, exp:30, emoji:"💩", time:"10:30"},
-{name:"เนย์มาร์ปลากระป๋อง", hp:10000, coin:2500, exp:35, emoji:"🐟", time:"11:50"},
-{name:"แม่", hp:25000, coin:5000, exp:50, emoji:"👩", time:"12:45"},
-{name:"พ่อกินหม้อ", hp:39500, coin:7500, exp:70, emoji:"🍲", time:"13:25"},
-{name:"Dictator Mbappe", hp:600000, coin:15000, exp:150, emoji:"🐢", time:"13:55"},
-{name:"ลุงไม้กวาด", hp:800000, coin:20000, exp:180, emoji:"🧹", time:"14:10"},
-{name:"ป้าโรตี", hp:1000000, coin:25000, exp:200, emoji:"🫓", time:"14:30"},
-{name:"น้องติดเกม", hp:1350000, coin:30000, exp:250, emoji:"🎮", time:"14:50"},
-{name:"ครูปกครอง", hp:1700000, coin:35000, exp:300, emoji:"👨‍🏫", time:"15:10"},
-{name:"หมาหมู่บ้าน", hp:2100000, coin:42000, exp:350, emoji:"🐕", time:"15:30"},
-{name:"วินมอไซค์", hp:2600000, coin:50000, exp:400, emoji:"🏍️", time:"15:50"},
-{name:"เจ๊ร้านเกม", hp:3200000, coin:60000, exp:500, emoji:"👩‍💻", time:"16:10"},
-{name:"ผีโรงยิม", hp:4000000, coin:75000, exp:600, emoji:"👻", time:"16:30"},
-{name:"คนนอนไม่ตื่น", hp:5000000, coin:90000, exp:700, emoji:"😴", time:"16:50"},
-{name:"นักฟาร์มทั้งคืน", hp:6200000, coin:110000, exp:850, emoji:"🌙", time:"17:10"},
-{name:"บังไก่ทอด", hp:7500000, coin:135000, exp:1000, emoji:"🍗", time:"17:30"},
-{name:"พี่ชายหัวร้อน", hp:9000000, coin:160000, exp:1200, emoji:"🤬", time:"17:50"},
-{name:"บอสโรงอาหาร", hp:11000000, coin:200000, exp:1500, emoji:"🍛", time:"18:10"},
-{name:"อาจารย์ใหญ่", hp:13500000, coin:250000, exp:1800, emoji:"📏", time:"18:30"},
-{name:"ยามหน้าโรงเรียน", hp:16500000, coin:300000, exp:2100, emoji:"👮", time:"18:50"},
-{name:"แม่ค้าหมูทะ", hp:20000000, coin:380000, exp:2500, emoji:"🥓", time:"19:10"},
-{name:"พี่ตูนวิ่ง", hp:25000000, coin:450000, exp:3000, emoji:"🏃", time:"19:30"},
-{name:"ลังยักษ์", hp:32000000, coin:550000, exp:3600, emoji:"📦📦", time:"19:50"},
-{name:"ก็อดซิลล่า", hp:40000000, coin:680000, exp:4200, emoji:"🦖", time:"20:10"},
-{name:"เอเลี่ยน", hp:50000000, coin:850000, exp:5000, emoji:"👽", time:"20:30"},
-{name:"หุ่นยนต์ครู", hp:65000000, coin:1000000, exp:6000, emoji:"🤖", time:"20:50"},
-{name:"มังกรคาบการบ้าน", hp:80000000, coin:1300000, exp:7500, emoji:"🐉", time:"21:10"},
-{name:"ยักษ์วัดแจ้ง", hp:100000000, coin:1700000, exp:9000, emoji:"👹", time:"21:30"},
-{name:"ไททัน", hp:130000000, coin:2200000, exp:11000, emoji:"🧍‍♂️", time:"21:50"},
-{name:"บอสเกมบัค", hp:170000000, coin:3000000, exp:13500, emoji:"💥", time:"22:10"},
-{name:"แอดมิน", hp:220000000, coin:4000000, exp:16000, emoji:"👨‍💼", time:"22:30"},
-{name:"เซิร์ฟล่ม", hp:300000000, coin:5500000, exp:20000, emoji:"💻", time:"22:50"},
-{name:"พ่อค้ารีไอดี", hp:400000000, coin:7500000, exp:25000, emoji:"💸", time:"23:10"},
-{name:"พระเจ้าสูงสุด", hp:1500000000, coin:50000000, exp:80000, emoji:"✨👁️✨", time:"00:00"},
-{name:"แมวง่วงตี1", hp:2000000, coin:150000, exp:2000, emoji:"🐱💤", time:"01:00"},
-{name:"หมาน้อยห่มผ้าตี2", hp:3500000, coin:200000, exp:2500, emoji:"🐶🛏️", time:"02:00"},
-{name:"ตู้เย็นเปิดเองตี3", hp:5000000, coin:300000, exp:3000, emoji:"🧊🍙", time:"03:00"},
-{name:"น้องดาวหลับตี4", hp:7500000, coin:400000, exp:4000, emoji:"⭐😴", time:"04:00"},
-{name:"ไก่ขันผิดเวลาตี5", hp:10000000, coin:600000, exp:5500, emoji:"🐓😵‍💫", time:"05:00"},
-{name:"แม่ตื่นแล้ว", hp:15000000, coin:1000000, exp:8000, emoji:"👩‍🍳☀️", time:"06:00"},
+{timeM:420, name:"อาบังลังกระดาษ", hp:400, coin:560, exp:10, emoji:"📦", label:"07:00"},
+{timeM:600, name:"พี่โด้กินโกโก้", hp:6000, coin:1500, exp:25, emoji:"🐐", label:"10:00"},
+{timeM:630, name:"เมสซี่ขี้ทุกวัน", hp:8000, coin:1800, exp:30, emoji:"💩", label:"10:30"},
+{timeM:710, name:"เนย์มาร์ปลากระป๋อง", hp:10000, coin:2500, exp:35, emoji:"🐟", label:"11:50"},
+{timeM:765, name:"แม่", hp:25000, coin:5000, exp:50, emoji:"👩", label:"12:45"},
+{timeM:805, name:"พ่อกินหม้อ", hp:39500, coin:7500, exp:70, emoji:"🍲", label:"13:25"},
+{timeM:835, name:"Dictator Mbappe", hp:600000, coin:15000, exp:150, emoji:"🐢", label:"13:55"},
+{timeM:850, name:"ลุงไม้กวาด", hp:800000, coin:20000, exp:180, emoji:"🧹", label:"14:10"},
+{timeM:870, name:"ป้าโรตี", hp:1000000, coin:25000, exp:200, emoji:"🫓", label:"14:30"},
+{timeM:890, name:"น้องติดเกม", hp:1350000, coin:30000, exp:250, emoji:"🎮", label:"14:50"},
+{timeM:910, name:"ครูปกครอง", hp:1700000, coin:35000, exp:300, emoji:"👨‍🏫", label:"15:10"},
+{timeM:930, name:"หมาหมู่บ้าน", hp:2100000, coin:42000, exp:350, emoji:"🐕", label:"15:30"},
+{timeM:950, name:"วินมอไซค์", hp:2600000, coin:50000, exp:400, emoji:"🏍️", label:"15:50"},
+{timeM:970, name:"เจ๊ร้านเกม", hp:3200000, coin:60000, exp:500, emoji:"👩‍💻", label:"16:10"},
+{timeM:990, name:"ผีโรงยิม", hp:4000000, coin:75000, exp:600, emoji:"👻", label:"16:30"},
+{timeM:1010, name:"คนนอนไม่ตื่น", hp:5000000, coin:90000, exp:700, emoji:"😴", label:"16:50"},
+{timeM:1030, name:"นักฟาร์มทั้งคืน", hp:6200000, coin:110000, exp:850, emoji:"🌙", label:"17:10"},
+{timeM:1050, name:"บังไก่ทอด", hp:7500000, coin:135000, exp:1000, emoji:"🍗", label:"17:30"},
+{timeM:1070, name:"พี่ชายหัวร้อน", hp:9000000, coin:160000, exp:1200, emoji:"🤬", label:"17:50"},
+{timeM:1090, name:"บอสโรงอาหาร", hp:11000000, coin:200000, exp:1500, emoji:"🍛", label:"18:10"},
+{timeM:1110, name:"อาจารย์ใหญ่", hp:13500000, coin:250000, exp:1800, emoji:"📏", label:"18:30"},
+{timeM:1130, name:"ยามหน้าโรงเรียน", hp:16500000, coin:300000, exp:2100, emoji:"👮", label:"18:50"},
+{timeM:1150, name:"แม่ค้าหมูทะ", hp:20000000, coin:380000, exp:2500, emoji:"🥓", label:"19:10"},
+{timeM:1170, name:"พี่ตูนวิ่ง", hp:25000000, coin:450000, exp:3000, emoji:"🏃", label:"19:30"},
+{timeM:1190, name:"ลังยักษ์", hp:32000000, coin:550000, exp:3600, emoji:"📦📦", label:"19:50"},
+{timeM:1210, name:"ก็อดซิลล่า", hp:40000000, coin:680000, exp:4200, emoji:"🦖", label:"20:10"},
+{timeM:1230, name:"เอเลี่ยน", hp:50000000, coin:850000, exp:5000, emoji:"👽", label:"20:30"},
+{timeM:1250, name:"หุ่นยนต์ครู", hp:65000000, coin:1000000, exp:6000, emoji:"🤖", label:"20:50"},
+{timeM:1270, name:"มังกรคาบการบ้าน", hp:80000000, coin:1300000, exp:7500, emoji:"🐉", label:"21:10"},
+{timeM:1290, name:"ยักษ์วัดแจ้ง", hp:100000000, coin:1700000, exp:9000, emoji:"👹", label:"21:30"},
+{timeM:1310, name:"ไททัน", hp:130000000, coin:2200000, exp:11000, emoji:"🧍‍♂️", label:"21:50"},
+{timeM:1330, name:"บอสเกมบัค", hp:170000000, coin:3000000, exp:13500, emoji:"💥", label:"22:10"},
+{timeM:1350, name:"แอดมิน", hp:220000000, coin:4000000, exp:16000, emoji:"👨‍💼", label:"22:30"},
+{timeM:1370, name:"เซิร์ฟล่ม", hp:300000000, coin:5500000, exp:20000, emoji:"💻", label:"22:50"},
+{timeM:1390, name:"พ่อค้ารีไอดี", hp:400000000, coin:7500000, exp:25000, emoji:"💸", label:"23:10"},
+{timeM:0, name:"พระเจ้าสูงสุด", hp:1500000000, coin:50000000, exp:80000, emoji:"✨👁️✨", label:"00:00"},
+{timeM:60, name:"แมวง่วงตี1", hp:2000000, coin:150000, exp:2000, emoji:"🐱💤", label:"01:00"},
+{timeM:120, name:"หมาน้อยห่มผ้าตี2", hp:3500000, coin:200000, exp:2500, emoji:"🐶🛏️", label:"02:00"},
+{timeM:180, name:"ตู้เย็นเปิดเองตี3", hp:5000000, coin:300000, exp:3000, emoji:"🧊🍙", label:"03:00"},
+{timeM:240, name:"น้องดาวหลับตี4", hp:7500000, coin:400000, exp:4000, emoji:"⭐😴", label:"04:00"},
+{timeM:300, name:"ไก่ขันผิดเวลาตี5", hp:10000000, coin:600000, exp:5500, emoji:"🐓😵‍💫", label:"05:00"},
+{timeM:360, name:"แม่ตื่นแล้ว", hp:15000000, coin:1000000, exp:8000, emoji:"👩‍🍳☀️", label:"06:00"},
 ];
 
 let shopItems=[
@@ -130,42 +134,104 @@ let shopItems=[
 {name:"ผู้สร้างทุกอย่าง", dmg:100000000, price:99999999999, lv:300, emoji:"😎👑"},
 ];
 
-let idx = parseInt(localStorage.getItem('d_idx')||0);
-let coins = parseInt(localStorage.getItem('d_coins')||0);
-let dmg = parseInt(localStorage.getItem('d_dmg')||1);
-let curHP = parseInt(localStorage.getItem('d_hp')||bosses[0].hp);
-let bought = JSON.parse(localStorage.getItem('d_bought')||'[]');
-let level = parseInt(localStorage.getItem('d_lv')||1);
-let exp = parseInt(localStorage.getItem('d_exp')||0);
-let loop = parseInt(localStorage.getItem('d_loop')||1);
+bosses.sort((a,b)=>a.timeM-b.timeM);
+
+let coins = parseInt(localStorage.getItem('rt_coins')||0);
+let dmg = parseInt(localStorage.getItem('rt_dmg')||1);
+let bought = JSON.parse(localStorage.getItem('rt_bought')||'[]');
+let level = parseInt(localStorage.getItem('rt_lv')||1);
+let exp = parseInt(localStorage.getItem('rt_exp')||0);
 let expNeed = level*100;
+let currentBossIdx = 0;
+let curHP = 0;
+
+function getThaiMinutes(){
+  let now = new Date();
+  let thaiStr = now.toLocaleString('en-US', {timeZone:'Asia/Bangkok'});
+  let thai = new Date(thaiStr);
+  return thai.getHours()*60 + thai.getMinutes();
+}
+function getThaiClockText(){
+  let now = new Date();
+  return now.toLocaleString('th-TH', {timeZone:'ATIMEBangkok', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false}) + ' น. เวลาไทย';
+}
+function findBossByTime(mins){
+  let idx = 0;
+  for(let i=0;i<bosses.length;i++){
+    if(bosses[i].timeM <= mins) idx = i;
+  }
+  if(mins < bosses[0].timeM) idx = bosses.length-1;
+  return idx;
+}
 
 function render(){
-  let b=bosses[idx]; let multi=Math.pow(1.7, loop-1); let realMax=Math.floor(b.hp*multi);
-  document.getElementById('bossName').innerText=b.name;
-  document.getElementById('bossTime').innerText=`🕐 ${b.time} | ${Math.floor(b.coin*multi).toLocaleString()} เหรียญ`;
-  document.getElementById('boss').innerText=b.emoji;
-  document.getElementById('coins').innerText=coins.toLocaleString();
-  document.getElementById('dmg').innerText=dmg.toLocaleString();
-  document.getElementById('level').innerText=level;
-  document.getElementById('exp').innerText=`${exp}/${expNeed}`;
-  document.getElementById('loop').innerText=loop;
-  document.getElementById('hpText').innerText=`HP ${curHP.toLocaleString()} / ${realMax.toLocaleString()}`;
-  document.getElementById('hpFill').style.width=(curHP/realMax*100)+'%';
+  document.getElementById('thaiClock').innerText = '🕐 ' + getThaiClockText();
+  let b = bosses[currentBossIdx];
+  let nextIdx = (currentBossIdx+1)%bosses.length;
+  let nextBoss = bosses[nextIdx];
+  document.getElementById('bossName').innerText = b.name;
+  document.getElementById('bossTime').innerText = `บอสตอนนี้ ${b.label} | ${b.name}`;
+  document.getElementById('nextTime').innerText = `บอสต่อไป ${nextBoss.label} ${nextBoss.name} - อีก ${getMinsToNext()} นาที`;
+  document.getElementById('boss').innerText = b.emoji;
+  document.getElementById('coins').innerText = coins.toLocaleString();
+  document.getElementById('dmg').innerText = dmg.toLocaleString();
+  document.getElementById('level').innerText = level;
+  document.getElementById('hpText').innerText = `HP ${curHP.toLocaleString()} / ${b.hp.toLocaleString()}`;
+  document.getElementById('hpFill').style.width = (curHP/b.hp*100)+'%';
+
   let sHtml='';
   shopItems.forEach((it,i)=>{
     let isBought=bought.includes(i); let locked=level<it.lv;
     sHtml+=`<div class="item ${locked? 'locked':''}"><div>${it.emoji} <b>${it.name}</b></div><div>+${it.dmg.toLocaleString()}</div><div class="price">${it.price.toLocaleString()}</div><div class="req">${isBought? 'ซื้อแล้ว ✅' : `เวล ${it.lv}`}</div><button class="${isBought||locked? 'cant':'buy'}" onclick="buy(${i})" ${isBought||locked? 'disabled':''}>${isBought? 'แล้ว': locked? 'ล็อค':'ซื้อ'}</button></div>`;
   });
   document.getElementById('shop').innerHTML=sHtml;
-  localStorage.setItem('d_idx', idx); localStorage.setItem('d_coins', coins);
-  localStorage.setItem('d_dmg', dmg); localStorage.setItem('d_hp', curHP);
-  localStorage.setItem('d_bought', JSON.stringify(bought));
-  localStorage.setItem('d_lv', level); localStorage.setItem('d_exp', exp); localStorage.setItem('d_loop', loop);
+  save();
 }
-function hit(){ curHP-=dmg; if(curHP<=0){ let multi=Math.pow(1.7, loop-1); coins+=Math.floor(bosses[idx].coin*multi); exp+=Math.floor(bosses[idx].exp*multi); while(exp>=expNeed){ exp-=expNeed; level++; expNeed=level*100; alert(`เลเวลอัพ! ${level}`);} idx++; if(idx>=bosses.length){ loop++; idx=0; alert(`ครบ 24 ชม. รอบ ${loop}!`);} curHP=Math.floor(bosses[idx].hp*Math.pow(1.7, loop-1));} render();}
-function buy(i){ if(level<shopItems[i].lv) return alert(`เวล ${shopItems[i].lv}`); if(bought.includes(i)) return; if(coins>=shopItems[i].price){ coins-=shopItems[i].price; dmg+=shopItems[i].dmg; bought.push(i); render();} else alert('เหรียญไม่พอ!');}
+function getMinsToNext(){
+  let nowM = getThaiMinutes();
+  let nextIdx = (currentBossIdx+1)%bosses.length;
+  let nextM = bosses[nextIdx].timeM;
+  let diff = nextM - nowM;
+  if(diff<=0) diff+=1440;
+  return diff;
+}
+function checkTimeChange(){
+  let nowM = getThaiMinutes();
+  let newIdx = findBossByTime(nowM);
+  if(newIdx!== currentBossIdx){
+    currentBossIdx = newIdx;
+    curHP = bosses[currentBossIdx].hp;
+    alert(`⏰ ถึงเวลา ${bosses[currentBossIdx].label} แล้ว! บอส ${bosses[currentBossIdx].name} มาแล้ว!`);
+    render();
+  }
+}
+function hit(){
+  curHP-=dmg;
+  if(curHP<=0){
+    coins+=bosses[currentBossIdx].coin;
+    exp+=bosses[currentBossIdx].exp;
+    while(exp>=expNeed){ exp-=expNeed; level++; expNeed=level*100; alert(`เลเวลอัพ! ${level}`); }
+    curHP=bosses[currentBossIdx].hp;
+  }
+  render();
+}
+function buy(i){
+  if(level<shopItems[i].lv) return alert(`เวล ${shopItems[i].lv}`);
+  if(bought.includes(i)) return;
+  if(coins>=shopItems[i].price){ coins-=shopItems[i].price; dmg+=shopItems[i].dmg; bought.push(i); render(); }
+  else alert('เหรียญไม่พอ!');
+}
+function save(){
+  localStorage.setItem('rt_coins', coins); localStorage.setItem('rt_dmg', dmg);
+  localStorage.setItem('rt_bought', JSON.stringify(bought));
+  localStorage.setItem('rt_lv', level); localStorage.setItem('rt_exp', exp);
+}
+
+let initM = getThaiMinutes();
+currentBossIdx = findBossByTime(initM);
+curHP = bosses[currentBossIdx].hp;
 render();
+setInterval(()=>{ document.getElementById('thaiClock').innerText = '🕐 ' + getThaiClockText(); checkTimeChange(); }, 1000);
 </script>
 </body>
-</html>
+  </html>
