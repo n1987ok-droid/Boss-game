@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BOSS FINAL ULTIMATE - CHAT ADMIN</title>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyAleJ23t-WqI_OY6nQTstyOPeTmHHUm-Mw",
+  authDomain: "boss-game-3bf12.firebaseapp.com",
+  projectId: "boss-game-3bf12",
+  storageBucket: "boss-game-3bf12.firebasestorage.app",
+  messagingSenderId: "508714199049",
+  appId: "1:508714199049:web:9956077598bbff82acf0d8"
+};
+let db; try{ const app=initializeApp(firebaseConfig); db=getFirestore(app);}catch(e){ console.log(e); }
+window.db=db; window.fs={doc,setDoc,getDoc,getDocs,collection};
+</script>
+<style>
+.news-bar{position:fixed;top:0;left:0;right:0;background:linear-gradient(90deg,#FF0000,#FFFF00,#FF0000);color:#000;font-weight:bold;padding:10px;z-index:100;overflow:hidden;white-space:nowrap;border-bottom:3px solid #000}
+.news-text{display:inline-block;animation:run 15s linear infinite}
+@keyframes run{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+body{background:radial-gradient(#111,#000);color:#fff;font-family:Arial;text-align:center;padding:15px;padding-top:60px}
+.card{background:#1e1e1e;padding:15px;border-radius:20px;max-width:580px;margin:auto}
+#clickBtn{width:210px;height:210px;border-radius:50%;font-size:30px;font-weight:bold;background:linear-gradient(45deg,#ff4444,#ff8800);border:none;cursor:pointer;box-shadow:0 0 30px #ff4444}
+#clickBtn:active{transform:scale(0.85)}
+.boss{font-size:90px;display:inline-block}
+.shake{animation:shake 0.3s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-12px) rotate(-5deg)}75%{transform:translateX(12px) rotate(5deg)}}
+.boss-bar{width:100%;height:30px;background:#333;border-radius:15px;overflow:hidden;margin:10px 0}
+.boss-fill{height:100%;background:linear-gradient(90deg,#ff0000,#ffff00);width:100%;transition:width 0.2s}
+.level-bar{width:100%;height:18px;background:#222;border-radius:9px;overflow:hidden}
+.level-fill{height:100%;background:linear-gradient(90deg,#00ff88,#00ccff);width:0%;transition:width 0.3s}
+.item{background:#2a2a2a;margin:8px 0;padding:12px;border-radius:12px;display:flex;justify-content:space-between;align-items:center}
+.event-item{background:linear-gradient(90deg,#C60B1E,#FFC400);border:3px solid gold;animation:glow 0.8s infinite alternate}
+@keyframes glow{from{box-shadow:0 0 5px gold} to{box-shadow:0 0 25px gold}}
+.float{position:absolute;color:#00ff88;font-weight:bold;animation:floatUp 0.8s forwards;pointer-events:none;font-size:22px}
+@keyframes floatUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-90px)}}
+#login{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:200}
+.admin-panel{background:#2e2e00;border:1px solid #ffcc00;padding:12px;border-radius:12px;margin:10px 0;text-align:left}
+.profile{background:#111;padding:12px;border-radius:12px;margin:10px 0;text-align:left}
+.char{font-size:28px;cursor:pointer;padding:5px;border-radius:8px;border:2px solid transparent;display:inline-block;margin:2px}
+.char.selected{border-color:#00ff88;background:#003322}
+.trophy-throw{font-size:30px;position:absolute;animation:throw 0.6s forwards;pointer-events:none}
+@keyframes throw{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(-200px) rotate(720deg) scale(2);opacity:0}}
+.chat-box{height:220px;overflow-y:auto;background:#0a0a0a;border-radius:10px;padding:10px;text-align:left;font-size:13px;margin:10px 0;border:1px solid #333}
+.msg{margin:6px 0;padding:7px 10px;border-radius:10px;background:#222;word-break:break-word}
+.msg.admin{background:linear-gradient(90deg,#ffcc00,#ff8800);color:#000;font-weight:bold}
+.msg.me{background:#003322;border:1px solid #00ff88}
+</style>
+</head>
+<body>
+<div class="news-bar"><span class="news-text" id="newsText">🏆 WORLD CUP 2026 สเปนแชมป์ 🇪🇸 | 👹 บอส 24 ตัวเลือด 10 ล้านล้านล้าน | 💎 ไอเทม 20 ชิ้น | 😺 โปรไฟล์ & ประวัติ | 💬 มีแชทคุยกับแอดมินดินทรายแล้ว!</span></div>
+<div id="login"><div class="card">
+<h2>เลือกตัวละคร + เข้าสู่ระบบ</h2>
+<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:3px;margin:10px 0" id="charSelect">
+<span class="char selected" onclick="pickChar(this,'😺')">😺</span><span class="char" onclick="pickChar(this,'🐨')">🐨</span><span class="char" onclick="pickChar(this,'🦊')">🦊</span><span class="char" onclick="pickChar(this,'🐶')">🐶</span><span class="char" onclick="pickChar(this,'🐯')">🐯</span><span class="char" onclick="pickChar(this,'🦁')">🦁</span><span class="char" onclick="pickChar(this,'🐼')">🐼</span><span class="char" onclick="pickChar(this,'🐸')">🐸</span><span class="char" onclick="pickChar(this,'🐙')">🐙</span><span class="char" onclick="pickChar(this,'👽')">👽</span><span class="char" onclick="pickChar(this,'🤖')">🤖</span><span class="char" onclick="pickChar(this,'💀')">💀</span><span class="char" onclick="pickChar(this,'👹')">👹</span><span class="char" onclick="pickChar(this,'🔥')">🔥</span><span class="char" onclick="pickChar(this,'⚡')">⚡</span><span class="char" onclick="pickChar(this,'🥷')">🥷</span><span class="char" onclick="pickChar(this,'🧙')">🧙</span><span class="char" onclick="pickChar(this,'🦄')">🦄</span><span class="char" onclick="pickChar(this,'🐉')">🐉</span><span class="char" onclick="pickChar(this,'👑')">👑</span>
+</div>
+<input id="username" placeholder="ชื่อ แอดมินดินทราย🇹🇭" style="padding:12px;width:80%;border-radius:10px;border:none"><br><br>
+<input id="pass" type="password" placeholder="รหัส" style="padding:12px;width:80%;border-radius:10px;border:none"><br><br>
+<button onclick="login()" style="padding:12px 20px;background:#00ff88;border:none;border-radius:10px;font-weight:bold;width:85%">เข้าเกม</button>
+<p id="error" style="color:#ff4444"></p>
+</div></div>
+<div class="card">
+<h2 id="welcome"></h2>
+<div class="profile">
+<div style="display:flex;align-items:center;gap:10px"><b id="profileChar" style="font-size:40px">😺</b><div><b id="profileName"></b><br><small>⭐ เลเวล: <span id="level">1</span> / 2,500,000,000,000</small></div></div>
+<div class="level-bar" style="margin:8px 0"><div class="level-fill" id="levelBar"></div></div>
+📊 <b>บันทึกประวัติการเล่น</b><br>
+<small>• ดาเมจรวม: <span id="totalDmg">0</span><br>• ตีไปทั้งหมด: <span id="totalHits">0</span> ครั้ง<br>• ฆ่าบอสไป: <span id="totalKills">0</span> ตัว<br>• เงินหาได้ทั้งหมด: <span id="totalEarned">0</span><br>• เวลาเล่น: <span id="playTime">0</span> วินาที</small>
+</div>
+<div id="adminPanel" class="admin-panel" style="display:none">
+<b>👑 แผงแอดมินดินทราย🇹🇭</b><br><br>
+<input id="newsInput" placeholder="พิมพ์ข่าวดี..." style="padding:8px;width:55%;border-radius:8px;border:none">
+<button onclick="setNews()" style="padding:8px 10px;background:#ff0000;color:#fff;border:none;border-radius:8px">เปลี่ยนป้ายข่าว</button><br><br>
+<div style="background:#111;padding:10px;border-radius:10px">
+<b>💸 เสกเงิน / เลเวล</b><br>
+<input id="giveName" placeholder="ชื่อคน (ว่าง=ตัวเอง)" style="padding:6px;width:52%;border-radius:6px;border:none;margin:2px">
+<input id="giveAmount" type="number" placeholder="จำนวน" style="padding:6px;width:40%;border-radius:6px;border:none;margin:2px"><br>
+<button onclick="giveMoney()" style="padding:6px 10px;background:#00ff88;border:none;border-radius:6px;margin:2px">เสกเงิน</button>
+<button onclick="giveMoneyToAll()" style="padding:6px 10px;background:#ff00ff;color:#fff;border:none;border-radius:6px;margin:2px">แจกทั้งเซิร์ฟ</button>
+<button onclick="maxLevel()" style="padding:6px 10px;background:gold;border:none;border-radius:6px;margin:2px">MAX 2.5T</button>
+</div>
+</div>
+<div class="boss" id="bossEmoji">👳</div><h3 id="bossName"></h3>
+<div class="boss-bar"><div class="boss-fill" id="bossHpBar"></div></div>
+<p><span id="bossHp"></span> / <span id="bossMax"></span> HP</p>
+<h2>💰 <span id="coins">0</span> | ดาเมจ: <span id="dmg">1</span></h2>
+<button id="clickBtn" onclick="hitBoss(event)">โจมตี!<br><small>ปา 🏆 ถ้าได้ถ้วยบอลโลก</small></button>
+<h3>🏆 อีเว้นท์บอลโลก 2026 - สเปนแชมป์ 🇪🇸</h3>
+<div id="eventShop">
+  <div class="item event-item">
+    <div style="text-align:left"><b>🏆 ถ้วยบอลโลก 2026 - ปาใส่บอส</b><br><small>+100,000,000 ดาเมจ - 50,000,000</small></div>
+    <button onclick="buyWorldCup()" style="background:gold;font-weight:bold;padding:10px;border-radius:10px;border:none">ซื้อ</button>
+  </div>
+</div>
+<h3>💬 แชทหาแอดมิน - คุยเล่น / เสนอไอเดีย</h3>
+<div class="chat-box" id="chatBox"><small>กำลังโหลดแชท...</small></div>
+<div style="display:flex;gap:5px">
+<input id="chatInput" placeholder="พิมพ์หาแอดมิน..." style="flex:1;padding:12px;border-radius:12px;border:none;background:#222;color:#fff">
+<button onclick="sendChat()" style="padding:12px 18px;background:#00ff88;border:none;border-radius:12px;font-weight:bold">ส่ง</button>
+</div>
+<h3>ร้านค้า - 20 ชิ้น ราคาทะลุ 10 ล้านล้านล้าน</h3><div id="shop"></div>
+</div>
+<script>
+const OWNER="แอดมินดินทราย🇹🇭"; const MAX_LEVEL=2500000000000;
+let coins=0,dmg=1,bossIndex=0,isOwner=false,level=1,exp=0,myChar='😺',myName='';
+let totalDmg=0,totalHits=0,totalKills=0,totalEarned=0,startTime=Date.now();
+let bosses=[
+{name:"1. อาบัง",hp:1500000000,emoji:"👳",reward:50000},
+{name:"2. พี่โด้กินโกโก้",hp:999000000,emoji:"🐐",reward:40000},
+{name:"3. พี่ซี่กินขี้ทุกวัน",hp:999000000,emoji:"🐐",reward:40000},
+{name:"4. เนย์มาร์ปลากระป๋อง",hp:67000000,emoji:"🐟",reward:10000},
+{name:"5. พี่ตูน",hp:150000000,emoji:"🏃",reward:20000},
+{name:"6. ลุงข้างบ้าน",hp:250000000,emoji:"🧹",reward:30000},
+{name:"7. ป้าขายลูกชิ้น",hp:500000000,emoji:"🍢",reward:50000},
+{name:"8. เด็กแว้น",hp:750000000,emoji:"🏍️",reward:70000},
+{name:"9. อาจารย์",hp:1200000000,emoji:"👨‍🏫",reward:100000},
+{name:"10. บอสกระเพรา",hp:2000000000,emoji:"🍛",reward:150000},
+{name:"11. แมว",hp:3500000000,emoji:"🐱",reward:300000},
+{name:"12. ไวไฟหอ",hp:5000000000,emoji:"📶",reward:500000},
+{name:"13. เจ้าหนี้",hp:10000000000,emoji:"💸",reward:1000000},
+{name:"14. ตัวตึงจักรวาล",hp:99999999999,emoji:"👹",reward:10000000},
+{name:"15. เทพเจ้าไททัน",hp:5000000000000,emoji:"🗿",reward:50000000},
+{name:"16. มังกรจักรวาล",hp:10000000000000,emoji:"🐉",reward:100000000},
+{name:"17. ซาตาน",hp:50000000000000,emoji:"😈",reward:500000000},
+{name:"18. เทพเจ้าสายฟ้า",hp:100000000000000,emoji:"⚡",reward:1000000000},
+{name:"19. จักรพรรดิกาแล็กซี่",hp:500000000000000,emoji:"🌌",reward:5000000000},
+{name:"20. หลุมดำยักษ์",hp:1000000000000000,emoji:"🕳️",reward:10000000000},
+{name:"21. บิ๊กแบง",hp:5000000000000000,emoji:"💥",reward:50000000000},
+{name:"22. พระเจ้าผู้สร้าง",hp:10000000000000000,emoji:"👁️",reward:100000000000},
+{name:"23. ความว่างเปล่า",hp:50000000000000000,emoji:"🌑",reward:500000000000},
+{name:"24. จุดจบของทุกสิ่ง 10 ล้านล้านล้าน",hp:100000000000000000,emoji:"☠️",reward:1000000000000}
+];
+let curHp=bosses[0].hp,maxHp=bosses[0].hp;
+let items=[
+{name:"ถุงมือ 7-11",price:100,add:2},
+{name:"สนับมือเด็กช่าง",price:1000,add:15},
+{name:"ค้อนช่าง",price:15000,add:200},
+{name:"Auto Clicker",price:100000,add:1500},
+{name:"พลังแฮก",price:1000000,add:20000},
+{name:"ดาบแสง",price:15000000,add:300000},
+{name:"ปืนเลเซอร์",price:150000000,add:4000000},
+{name:"หุ่นยนต์ยักษ์",price:1500000000,add:50000000},
+{name:"ยานอวกาศ",price:15000000000,add:700000000},
+{name:"ดาวเทียม",price:150000000000,add:10000000000},
+{name:"หลุมดำ",price:1500000000000,add:150000000000},
+{name:"บิ๊กแบง",price:15000000000000,add:2500000000000},
+{name:"พลังพระเจ้า",price:100000000000000,add:99999999999999},
+{name:"💎 ดาบเพชรจักรวาล",price:10000000000000,add:1000000000000},
+{name:"🌟 ดาวนิวตรอน",price:50000000000000,add:5000000000000},
+{name:"🌀 พลังวาร์ปมิติ",price:100000000000000,add:10000000000000},
+{name:"🔮 ลูกแก้วเทพเจ้า",price:500000000000000,add:50000000000000},
+{name:"⚔️ ดาบแห่งกาลเวลา",price:1000000000000000,add:100000000000000},
+{name:"🌌 กาแล็กซี่แคนนอน",price:5000000000000000,add:500000000000000},
+{name:"👑 มงกุฎพระเจ้า MAX 2.5T",price:10000000000000000,add:2500000000000000}
+];
+function pickChar(el,c){ document.querySelectorAll('.char').forEach(e=>e.classList.remove('selected')); el.classList.add('selected'); myChar=c; }
+async function login(){
+ let u=document.getElementById('username').value.trim(); let p=document.getElementById('pass').value.trim();
+ if(!u||!p){document.getElementById('error').innerText="ใส่ชื่อรหัส";return;}
+ let ref=window.fs.doc(window.db,"accounts",u); let snap=await window.fs.getDoc(ref);
+ if(snap.exists()&&snap.data().pass!==p){document.getElementById('error').innerText="รหัสผิด";return;}
+ if(!snap.exists()) await window.fs.setDoc(ref,{user:u,pass:p,char:myChar,date:new Date().toLocaleString()});
+ else myChar=snap.data().char||myChar;
+ myName=u; isOwner=(u===OWNER);
+ document.getElementById('login').style.display='none';
+ document.getElementById('welcome').innerText=(isOwner?"👑 ":"")+myChar+" "+u;
+ document.getElementById('profileChar').innerText=myChar; document.getElementById('profileName').innerText=u;
+ if(isOwner) document.getElementById('adminPanel').style.display='block';
+ startTime=Date.now(); renderShop(); updateBoss(); updateLevel(); loadChat(); setInterval(updatePlayTime,1000); setInterval(loadChat,3000);
+}
+function setNews(){ let t=document.getElementById('newsInput').value; if(t) document.getElementById('newsText').innerText="📢 "+t+" | "; }
+function giveMoney(){ let a=parseInt(document.getElementById('giveAmount').value); if(!a) return alert('ใส่จำนวน'); coins+=a; totalEarned+=a; updateBoss(); updateStats(); document.getElementById('newsText').innerText=`💸 แอดมินเสกเงิน ${a.toLocaleString()}!`; }
+function giveMoneyToAll(){ let a=parseInt(document.getElementById('giveAmount').value); if(!a) return alert('ใส่จำนวน'); coins+=a; totalEarned+=a; updateBoss(); updateStats(); document.getElementById('newsText').innerText=`🎉 แจกทั้งเซิร์ฟ ${a.toLocaleString()} เหรียญ!`; }
+function maxLevel(){ level=MAX_LEVEL; dmg=MAX_LEVEL; exp=MAX_LEVEL*1000; updateLevel(); updateBoss(); }
+function hitBoss(e){
+ totalHits++; totalDmg+=dmg; totalEarned+=1;
+ curHp-=dmg; coins+=1; exp+=dmg;
+ if(exp>=level*100){ level++; if(level>MAX_LEVEL) level=MAX_LEVEL; }
+ if(curHp<=0){ coins+=bosses[bossIndex].reward; totalEarned+=bosses[bossIndex].reward; totalKills++; bossIndex=(bossIndex+1)%bosses.length; curHp=bosses[bossIndex].hp; maxHp=bosses[bossIndex].hp; }
+ let b=document.getElementById('bossEmoji'); b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake');
+ let f=document.createElement('div'); f.className='float'; f.innerText='+1 💰'; f.style.left=(e.pageX-20)+'px'; f.style.top=(e.pageY-40)+'px'; document.body.appendChild(f); setTimeout(()=>f.remove(),800);
+ if(dmg>=100000000){ let t=document.createElement('div'); t.className='trophy-throw'; t.innerText='🏆'; t.style.left=e.pageX+'px'; t.style.top=e.pageY+'px'; document.body.appendChild(t); setTimeout(()=>t.remove(),600); }
+ updateBoss(); updateLevel(); updateStats();
+}
+function updateStats(){ document.getElementById('totalDmg').innerText=totalDmg.toLocaleString(); document.getElementById('totalHits').innerText=totalHits.toLocaleString(); document.getElementById('totalKills').innerText=totalKills.toLocaleString(); document.getElementById('totalEarned').innerText=totalEarned.toLocaleString(); }
+function updatePlayTime(){ document.getElementById('playTime').innerText=Math.floor((Date.now()-startTime)/1000).toLocaleString(); }
+function updateLevel(){ if(level>MAX_LEVEL) level=MAX_LEVEL; document.getElementById('level').innerText=level.toLocaleString(); document.getElementById('levelBar').style.width=Math.min((level/MAX_LEVEL*100),100)+'%'; }
+function updateBoss(){ document.getElementById('bossName').innerText=bosses[bossIndex].name; document.getElementById('bossEmoji').innerText=bosses[bossIndex].emoji; document.getElementById('bossHp').innerText=Math.max(0,curHp).toLocaleString(); document.getElementById('bossMax').innerText=maxHp.toLocaleString(); document.getElementById('coins').innerText=coins.toLocaleString(); document.getElementById('dmg').innerText=dmg.toLocaleString(); document.getElementById('bossHpBar').style.width=(Math.max(0,curHp)/maxHp*100)+'%'; }
+function buyWorldCup(){ if(coins>=50000000){coins-=50000000; dmg+=100000000; level+=1000000; updateBoss(); updateLevel(); alert('🏆 ได้ถ้วยบอลโลก! ปาแรง 100 ล้าน!');} else alert('เงินไม่พอ'); }
+function buy(i){ if(coins>=items[i].price){coins-=items[i].price; dmg+=items[i].add; level+=Math.floor(items[i].add/10000000); if(level>MAX_LEVEL) level=MAX_LEVEL; items[i].price=Math.floor(items[i].price*1.85); updateBoss(); updateLevel(); renderShop(); updateStats();} else alert('เงินไม่พอ ต้อง '+items[i].price.toLocaleString()); }
+function renderShop(){ let h=''; items.forEach((it,idx)=>{h+=`<div class="item"><div style="text-align:left"><b>${it.name}</b><br><small>+${it.add.toLocaleString()} - ${it.price.toLocaleString()}</small></div><button onclick="buy(${idx})">ซื้อ</button></div>`}); document.getElementById('shop').innerHTML=h; }
+async function sendChat(){
+ let txt=document.getElementById('chatInput').value.trim(); if(!txt) return;
+ let data={name:myName, char:myChar, text:txt, isAdmin:isOwner, time:new Date().toLocaleTimeString(), ts:Date.now()};
+ await window.fs.setDoc(window.fs.doc(window.db,"chats",Date.now().toString()), data);
+ document.getElementById('chatInput').value=''; loadChat();
+}
+async function loadChat(){
+ try{
+  let q=await window.fs.getDocs(window.fs.collection(window.db,"chats"));
+  let arr=[]; q.forEach(d=>arr.push(d.data())); arr.sort((a,b)=>(a.ts||0)-(b.ts||0)); arr=arr.slice(-30);
+  let html=''; arr.forEach(m=>{
+    html+=`<div class="msg ${m.isAdmin?'admin':''}">${m.char||'😺'} <b>${m.name}:</b> ${m.text} <small style="opacity:0.6"> ${m.time||''}</small></div>`;
+  });
+  document.getElementById('chatBox').innerHTML=html||'<small>ยังไม่มีข้อความ พิมพ์คุยกับแอดมินเลย!</small>';
+  document.getElementById('chatBox').scrollTop=99999;
+ }catch(e){}
+}
+</script>
+</body>
+  </html>
